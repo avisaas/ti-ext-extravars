@@ -4,51 +4,38 @@ declare(strict_types=1);
 
 namespace CupNoodles\ExtraVars;
 
-use CupNoodles\ExtraVars\Classes\ExtraVarManager;
-use CupNoodles\ExtraVars\Models\ExtraVar;
-use CupNoodles\ExtraVars\Models\ExtraVarValue;
-use Igniter\System\Classes\BaseExtension;
-use Override;
+use CupNoodles\ExtraVars\AviMarketplace\Admin;
+use CupNoodles\ExtraVars\AviMarketplace\Setup;
 
-class Extension extends BaseExtension
+class Extension extends UpstreamExtension
 {
-    protected array $morphMap = [
-        'extra_vars' => ExtraVar::class,
-        'extra_var_values' => ExtraVarValue::class,
-    ];
+    private bool $aviMarketplaceGated = false;
 
-    #[Override]
+    public function __construct($app)
+    {
+        parent::__construct($app);
+
+        $gated = Setup::gated();
+        $this->aviMarketplaceGated = $gated;
+
+        if ($gated) {
+            $this->disabled = true;
+        }
+
+        rescue(fn () => Admin::attach($gated), null, false);
+    }
+
+    public function register(): void
+    {
+        if (!Setup::withholds($this->aviMarketplaceGated)) {
+            parent::register();
+        }
+    }
+
     public function boot(): void
     {
-        ExtraVarManager::boot();
-    }
-
-    #[Override]
-    public function registerPermissions(): array
-    {
-        return [
-            'CupNoodles.ExtraVars.Manage' => [
-                'description' => 'lang:cupnoodles.extravars::default.permission_manage',
-                'group' => 'igniter::admin.permissions.name',
-            ],
-        ];
-    }
-
-    #[Override]
-    public function registerNavigation(): array
-    {
-        return [
-            'design' => [
-                'child' => [
-                    'extravars' => [
-                        'priority' => 90,
-                        'class' => 'extravars',
-                        'href' => admin_url('cupnoodles/extravars/extra_vars'),
-                        'title' => lang('cupnoodles.extravars::default.side_menu'),
-                        'permission' => 'CupNoodles.ExtraVars.Manage',
-                    ],
-                ],
-            ],
-        ];
+        if (method_exists(parent::class, 'boot') && !Setup::withholds($this->aviMarketplaceGated)) {
+            parent::boot();
+        }
     }
 }

@@ -1,5 +1,5 @@
 {
-    "name": "cupnoodles/ti-ext-extravars",
+    "name": "avisaas/ti-ext-extravars",
     "type": "tastyigniter-package",
     "license": "MIT",
     "description": "Add your own fields to menu items, categories and locations, edit them in the admin and use them in your theme.",
@@ -12,7 +12,8 @@
         "php": "^8.3",
         "tastyigniter/core": "^v4.0",
         "tastyigniter/ti-ext-cart": "^v4.0",
-        "tastyigniter/ti-ext-local": "^v4.0"
+        "tastyigniter/ti-ext-local": "^v4.0",
+        "avisaas/ti-ext-connector": "^1.3"
     },
     "require-dev": {
         "laravel/pint": "^1.2"
@@ -45,5 +46,8 @@
     "scripts": {
         "test:lint": "vendor/bin/pint --test --ansi",
         "test:lint-fix": "vendor/bin/pint --ansi"
+    },
+    "replace": {
+        "cupnoodles/ti-ext-extravars": "self.version"
     }
 }
